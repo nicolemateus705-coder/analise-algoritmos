@@ -9,12 +9,12 @@
 using namespace std;
 using namespace chrono;
 
-// Variável global usada para evitar que o compilador elimine
-// chamadas de busca durante otimizações.
+// Variável global para evitar otimização do compilador
 volatile int resultadoBusca = 0;
 
-// Função para medir o tempo médio da busca sequencial.
-// O pior caso é usado procurando o último elemento do vetor.
+// ================= BUSCAS =================
+
+// Teste da busca sequencial (O(n))
 void testarBuscaSequencial(const vector<int>& tamanhos) {
     cout << "BUSCA SEQUENCIAL" << endl;
 
@@ -24,7 +24,6 @@ void testarBuscaSequencial(const vector<int>& tamanhos) {
         for (int i = 0; i < 30; i++) {
             vector<int> v(n);
 
-            // Preenche o vetor com valores crescentes.
             for (int j = 0; j < n; j++) {
                 v[j] = j;
             }
@@ -33,7 +32,6 @@ void testarBuscaSequencial(const vector<int>& tamanhos) {
 
             auto inicio = high_resolution_clock::now();
 
-            // A repetição interna evita tempos iguais a zero.
             for (int k = 0; k < 1000; k++) {
                 resultadoBusca = buscaSequencial(v, chave);
             }
@@ -43,15 +41,13 @@ void testarBuscaSequencial(const vector<int>& tamanhos) {
             soma += duration_cast<nanoseconds>(fim - inicio).count();
         }
 
-        long long media = soma / 30;
-        cout << "n = " << n << " | tempo medio = " << media << " ns" << endl;
+        cout << "n = " << n << " | tempo medio = " << soma / 30 << " ns" << endl;
     }
 
     cout << endl;
 }
 
-// Função para medir o tempo médio da busca binária.
-// O vetor já está ordenado, como o algoritmo exige.
+// Teste da busca binária (O(log n))
 void testarBuscaBinaria(const vector<int>& tamanhos) {
     cout << "BUSCA BINARIA" << endl;
 
@@ -69,7 +65,6 @@ void testarBuscaBinaria(const vector<int>& tamanhos) {
 
             auto inicio = high_resolution_clock::now();
 
-            // A busca binária é muito rápida, então usa mais repetições.
             for (int k = 0; k < 100000; k++) {
                 resultadoBusca = buscaBinaria(v, chave);
             }
@@ -79,14 +74,15 @@ void testarBuscaBinaria(const vector<int>& tamanhos) {
             soma += duration_cast<nanoseconds>(fim - inicio).count();
         }
 
-        long long media = soma / 30;
-        cout << "n = " << n << " | tempo medio = " << media << " ns" << endl;
+        cout << "n = " << n << " | tempo medio = " << soma / 30 << " ns" << endl;
     }
 
     cout << endl;
 }
 
-// Função para medir o tempo médio do Insertion Sort.
+// ================= ORDENAÇÃO =================
+
+// Teste do Insertion Sort (O(n²))
 void testarInsertionSort(const vector<int>& tamanhos) {
     cout << "INSERTION SORT" << endl;
 
@@ -96,7 +92,6 @@ void testarInsertionSort(const vector<int>& tamanhos) {
         for (int i = 0; i < 30; i++) {
             vector<int> v(n);
 
-            // Gera valores aleatórios para o vetor.
             for (int j = 0; j < n; j++) {
                 v[j] = rand();
             }
@@ -105,8 +100,6 @@ void testarInsertionSort(const vector<int>& tamanhos) {
 
             auto inicio = high_resolution_clock::now();
 
-            // Repete várias vezes e usa cópia para evitar medir
-            // o algoritmo em vetor já ordenado.
             for (int k = 0; k < 10; k++) {
                 vector<int> temp = copia;
                 insertionSort(temp);
@@ -117,12 +110,45 @@ void testarInsertionSort(const vector<int>& tamanhos) {
             soma += duration_cast<nanoseconds>(fim - inicio).count();
         }
 
-        long long media = soma / 30;
-        cout << "n = " << n << " | tempo medio = " << media << " ns" << endl;
+        cout << "n = " << n << " | tempo medio = " << soma / 30 << " ns" << endl;
     }
 
     cout << endl;
 }
+
+// Teste do Merge Sort (O(n log n))
+void testarMergeSort(const vector<int>& tamanhos) {
+    cout << "MERGE SORT" << endl;
+
+    for (int n : tamanhos) {
+        long long soma = 0;
+
+        for (int i = 0; i < 30; i++) {
+            vector<int> v(n);
+
+            for (int j = 0; j < n; j++) {
+                v[j] = rand();
+            }
+
+            auto inicio = high_resolution_clock::now();
+
+            for (int k = 0; k < 10; k++) {
+                vector<int> temp = v;
+                mergeSort(temp, 0, temp.size() - 1);
+            }
+
+            auto fim = high_resolution_clock::now();
+
+            soma += duration_cast<nanoseconds>(fim - inicio).count();
+        }
+
+        cout << "n = " << n << " | tempo medio = " << soma / 30 << " ns" << endl;
+    }
+
+    cout << endl;
+}
+
+// ================= MAIN =================
 
 int main() {
     vector<int> tamanhosBusca = {1000, 5000, 10000, 20000, 50000, 100000};
@@ -131,6 +157,7 @@ int main() {
     testarBuscaSequencial(tamanhosBusca);
     testarBuscaBinaria(tamanhosBusca);
     testarInsertionSort(tamanhosOrdenacao);
+    testarMergeSort(tamanhosOrdenacao);
 
     return 0;
 }
